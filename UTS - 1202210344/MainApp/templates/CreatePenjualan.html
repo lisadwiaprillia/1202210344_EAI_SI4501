@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tambah Penjualan</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-outline-secondary me-2"
+                aria-current="page"
+                href="/show-penjualan"
+                >Penjualan</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-outline-secondary me-2"
+                aria-current="page"
+                href="/show-produk"
+                >Produk</a
+              >
+            </li>
+          </ul>
+          <form class="d-flex ms-auto">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+    <br />
+    <h1 class="mb-4 text-center">Tambah Penjualan</h1>
+    <br />
+    <div class="container">
+      <form id="penjualanForm">
+        <div class="mb-3">
+          <label for="exampleInputName" class="form-label">PenjualanID</label>
+          <input type="text" class="form-control" name="PenjualanID" id="PenjualanID" />
+        </div>
+        <div class="mb-3">
+          <label for="exampleInputProdukID" class="form-label">ProdukID</label>
+          <select class="form-select" id="produkID" name="ProdukID"></select>
+        </div>
+        <div class="mb-3">
+          <label for="exampleInputName" class="form-label">Nama</label>
+          <input type="text" class="form-control" name="Nama" id="nama" readonly />
+        </div>
+        <div class="mb-3">
+          <label for="exampleInputKategori" class="form-label">Jumlah</label>
+          <input type="number" class="form-control" name="Jumlah" id="jumlah" />
+        </div>
+        <div class="mb-3">
+          <label for="exampleInputTotalHarga" class="form-label">Total Harga</label>
+          <input type="text" class="form-control" name="TotalHarga" id="totalHarga" readonly />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $.ajax({
+          url: "http://localhost:5001/produk/",
+          type: "GET",
+          success: function (data) {
+            $.each(data, function (index, produk) {
+              $("#produkID").append(
+                $("<option>", {
+                  value: produk.ProdukID,
+                  text: produk.ProdukID,
+                })
+              );
+            });
+          },
+          error: function () {
+            console.error("Failed to fetch ProdukIDs");
+          },
+        });
+
+        $("#produkID").on("change", function () {
+          var ProdukID = $(this).val();
+          $.ajax({
+            url: "http://localhost:5001/produk/" + ProdukID,
+            type: "GET",
+            success: function (data) {
+              $("#nama").val(data.Nama);
+            },
+            error: function () {
+              console.error("Failed to fetch data produk");
+            },
+          });
+        });
+
+        $("#jumlah").on("input", function () {
+          var selectedProdukID = $("#produkID").val();
+          var jumlah = parseInt($(this).val());
+
+          $.ajax({
+            url: "http://localhost:5001/produk/" + selectedProdukID,
+            type: "GET",
+            success: function (data) {
+              var harga = parseFloat(data.Harga);
+              var totalHarga = jumlah * harga;
+              $("#totalHarga").val(totalHarga.toFixed(2));
+            },
+            error: function () {
+              console.error("Failed to fetch data produk");
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
